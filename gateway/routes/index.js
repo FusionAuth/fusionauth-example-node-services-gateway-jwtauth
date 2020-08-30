@@ -5,8 +5,7 @@ const {FusionAuthClient} = require('@fusionauth/typescript-client');
 const clientId = 'b2b82e4f-6b5a-47c6-af3d-c904ef59d7db';
 const clientSecret = 'k4Ldb41rzOy9NmN6wp-Dj5kqcgza_5llmK1CzpGb3xk';
 const client = new FusionAuthClient('noapikeyneeded', 'http://localhost:9011');
-
-const checkAuthentication = require('../middleware');
+const checkAuthentication = require('../middleware/checkAuthentication');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
