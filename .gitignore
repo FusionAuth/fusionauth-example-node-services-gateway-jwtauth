@@ -1,1 +1,4 @@
 .DS_Store
+gateway/node_modules
+product-catalog/node_modules
+product-inventory/node_modules

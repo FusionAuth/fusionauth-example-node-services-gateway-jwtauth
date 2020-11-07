@@ -2,10 +2,12 @@ const request = require('request');
 const express = require('express');
 const router = express.Router();
 const {FusionAuthClient} = require('@fusionauth/typescript-client');
-const clientId = 'b2b82e4f-6b5a-47c6-af3d-c904ef59d7db';
-const clientSecret = 'k4Ldb41rzOy9NmN6wp-Dj5kqcgza_5llmK1CzpGb3xk';
+const clientId = '[Client ID]';
+const clientSecret = '[Client Secret]';
 const client = new FusionAuthClient('noapikeyneeded', 'http://localhost:9011');
 const checkAuthentication = require('../middleware/checkAuthentication');
+const jwtSigningKey = '[Default signing key]';
+const jwt = require('jsonwebtoken');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -44,21 +46,40 @@ router.get('/oauth-redirect', function (req, res, next) {
 const productUrl = 'http://localhost:3001';
 
 router.get('/products', function(req, res, next) {
-  request(`${productUrl}/products`).pipe(res);
+  const bearerToken = getGatewayBearerToken(req);
+  const options = {
+    url: `${productUrl}/products`,
+    headers: { authorization: bearerToken }
+  };
+  request(options).pipe(res);
 });
 
 router.get('/products/:id', function(req, res, next) {
-  request(`${productUrl}/products/${req.params.id}`).pipe(res);
+  const bearerToken = getGatewayBearerToken(req);
+  const options = {
+    url: `${productUrl}/products/${req.params.id}`,
+    headers: { authorization: bearerToken }
+  };
+  request(options).pipe(res);
 });
 
 /* PRODUCT INVENTORY ROUTES */
 router.get('/branches/:id/products', checkAuthentication, function(req, res, next) {
-  const user = req.session.user;
+  const bearerToken = getUserBearerToken(req);
   const options = {
     url: `http://localhost:3002/branches/${req.params.id}/products`,
-    headers: { roles: user.registrations[0].roles }
+    headers: { authorization: bearerToken }
   };
   request(options).pipe(res);
 });
+
+function getGatewayBearerToken(req) {
+  var token = jwt.sign({ data: req.url }, jwtSigningKey, { expiresIn: '10m', subject: 'gateway', issuer: req.get('host') });
+  return 'Bearer ' + token;
+}
+
+function getUserBearerToken(req) {
+  return 'Bearer ' + req.session.access_token;
+}
 
 module.exports = router;

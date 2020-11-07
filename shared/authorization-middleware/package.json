@@ -1,0 +1,9 @@
+{
+    "name": "authorization-middleware",
+    "version": "0.0.1",
+    "private": true,
+    "main": "index.js",
+    "dependencies": {
+        "jsonwebtoken": "^8.5.1"
+    }
+}
