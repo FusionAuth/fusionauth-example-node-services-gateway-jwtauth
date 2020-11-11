@@ -25,7 +25,7 @@ module.exports = function(options) {
             }
 
             const decoded_token = jwt.verify(token, options.jwtSigningKey);
-            req.session.roles = decoded_token.roles;
+            req.roles = decoded_token.roles; // These could be null if the user isn't logged in
 
         } catch(err) {
             console.error(err);

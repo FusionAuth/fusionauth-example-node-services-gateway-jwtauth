@@ -65,21 +65,21 @@ router.get('/products/:id', function(req, res, next) {
 
 /* PRODUCT INVENTORY ROUTES */
 router.get('/branches/:id/products', checkAuthentication, function(req, res, next) {
-  const bearerToken = getUserBearerToken(req);
+  const bearerToken = getGatewayBearerToken(req);
   const options = {
     url: `http://localhost:3002/branches/${req.params.id}/products`,
     headers: { authorization: bearerToken }
   };
+
   request(options).pipe(res);
 });
 
 function getGatewayBearerToken(req) {
-  var token = jwt.sign({ data: req.url }, jwtSigningKey, { expiresIn: '10m', subject: 'gateway', issuer: req.get('host') });
+  // Recall that we put the User in the session in the previous post, but they might not be logged in so protect this code
+  // from a null User. 
+  var user = req.session.user;
+  var token = jwt.sign({ data: req.url, roles: user !== null ? user.registrations[0].roles : null }, jwtSigningKey, { expiresIn: '10m', subject: 'gateway', issuer: req.get('host') });
   return 'Bearer ' + token;
-}
-
-function getUserBearerToken(req) {
-  return 'Bearer ' + req.session.access_token;
 }
 
 module.exports = router;
